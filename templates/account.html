@@ -1,27 +1,20 @@
 <html>
+  <head>
+      <!--http://bettermotherfuckingwebsite.com/-->
+      <style type="text/css">body{margin:40px
+auto;max-width:650px;line-height:1.6;font-size:18px;color:#444;padding:0
+10px}h1,h2,h3{line-height:1.2}</style>
+  </head>
   <body>
 
-    <h1>Edit your account</h1>
-
+    <h1>Best Upload Site Ever</h1>
     <hr>
-
-    <h2>Your avatar</h2>
-
     <input type="file" id="file-input">
-    <p id="status">Please select a file</p>
-    <img style="border:1px solid gray;width:300px;" id="preview" src="/static/media/default.png">
-
-    <h2>Your information</h2>
-
-    <form method="POST" action="/submit-form/">
-      <input type="hidden" id="avatar-url" name="avatar-url" value="/static/media/default.png">
-      <input type="text" name="username" placeholder="Username"><br>
-      <input type="text" name="full-name" placeholder="Full name"><br><br>
-
-      <hr>
-      <h2>Save changes</h2>
-
-      <input type="submit" value="Update profile">
+    <hr>
+    <p id="status">Please enter a recipient:</p>
+    <form method="POST" action="javascript:void(0);">
+      <input type="text" id="username" name="username" placeholder="Recipient"><br>
+      <input type="submit" value="Submit" onclick="return initUpload();">
     </form>
 
 
@@ -44,8 +37,9 @@
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200 || xhr.status === 204){
-            document.getElementById('preview').src = url;
-            document.getElementById('avatar-url').value = url;
+            document.getElementById('username').value = ""
+            document.getElementById('file-input').value = ""
+            confirm("Success")
           }
           else{
             alert('Could not upload file.');
@@ -62,7 +56,8 @@
     */
     function getSignedRequest(file){
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}`);
+      username = document.getElementById('username').value
+        xhr.open('GET', `/sign-s3?file-name=${file.name}&file-type=${file.type}&username=` + username);
       xhr.onreadystatechange = () => {
         if(xhr.readyState === 4){
           if(xhr.status === 200){
@@ -71,10 +66,12 @@
           }
           else{
             alert('Could not get signed URL.');
+            
           }
         }
       };
       xhr.send();
+      return true;
     }
 
     /*
@@ -82,20 +79,25 @@
        start upload procedure by asking for a signed request from the app.
     */
     function initUpload(){
+      username = document.getElementById('username').value
+      if (username == "") {
+          alert("Please enter a high-side recipient");
+          return false;
+      }
       const files = document.getElementById('file-input').files;
       const file = files[0];
       if(!file){
         return alert('No file selected.');
       }
-      getSignedRequest(file);
+      return getSignedRequest(file);
     }
 
     /*
        Bind listeners when the page loads.
-    */
     (() => {
       document.getElementById('file-input').onchange = initUpload;
     })();
+    */
 
     </script>
   </body>
